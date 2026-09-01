@@ -1,0 +1,4 @@
+{
+  "printWidth": 100,
+  "ignorePatterns": ["dev.onorca.streamdeck.sdPlugin/bin/**"]
+}
