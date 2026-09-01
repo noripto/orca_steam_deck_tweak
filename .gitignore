@@ -1,0 +1,9 @@
+node_modules/
+dev.onorca.streamdeck.sdPlugin/bin/
+*.streamDeckPlugin
+*.log
+.DS_Store
+coverage/
+.kiri/
+.claude/
+.nori/
