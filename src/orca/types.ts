@@ -57,12 +57,7 @@ export interface OrcaAgentRow {
   updatedAt?: number;
 }
 
-export type OrcaRawAgentState =
-  | "working"
-  | "waiting"
-  | "blocked"
-  | "idle"
-  | "done";
+export type OrcaRawAgentState = "working" | "waiting" | "blocked" | "idle" | "done";
 
 /** Per-worktree fallback status derived from terminal titles / PTY liveness. */
 export type OrcaWorktreeStatus = "inactive" | "active" | "working" | "permission";

@@ -15,14 +15,12 @@ export default {
     file: `${sdPlugin}/bin/plugin.js`,
     format: "cjs",
     sourcemap: true,
-    sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
-      return relativeSourcePath;
-    }
+    sourcemapPathTransform: (relativeSourcePath) => relativeSourcePath,
   },
   plugins: [
     typescript({ tsconfig: "./tsconfig.json" }),
     nodeResolve({ browser: false, exportConditions: ["node"], preferBuiltins: true }),
-    commonjs()
+    commonjs(),
   ],
-  external: []
+  external: [],
 };

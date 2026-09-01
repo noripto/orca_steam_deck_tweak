@@ -3,7 +3,7 @@ import {
   type KeyDownEvent,
   type WillAppearEvent,
   type DialRotateEvent,
-  type DialDownEvent
+  type DialDownEvent,
 } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 
@@ -26,7 +26,7 @@ export class WorktreeStatusAction extends OrcaAction {
       }
       void action.setFeedback({
         title: wt ? `${fit(wt.repo, 12)}` : "WORKTREE",
-        value: wt ? `${fit(wt.branch, 14)} · ${stateVisual(wt.state).label}` : "none"
+        value: wt ? `${fit(wt.branch, 14)} · ${stateVisual(wt.state).label}` : "none",
       });
       return;
     }
@@ -37,7 +37,9 @@ export class WorktreeStatusAction extends OrcaAction {
       return;
     }
     if (!wt) {
-      void action.setImage(renderKey({ glyph: "❏", color: "#8a8f98", lines: ["WORKTREE", "NONE"] }));
+      void action.setImage(
+        renderKey({ glyph: "❏", color: "#8a8f98", lines: ["WORKTREE", "NONE"] }),
+      );
       return;
     }
     const visual = stateVisual(wt.state);
@@ -45,8 +47,12 @@ export class WorktreeStatusAction extends OrcaAction {
       renderKey({
         glyph: "❏",
         color: visual.color,
-        lines: [fit(wt.repo), fit(wt.branch), `${wt.agentCount} agent${wt.agentCount === 1 ? "" : "s"}`]
-      })
+        lines: [
+          fit(wt.repo),
+          fit(wt.branch),
+          `${wt.agentCount} agent${wt.agentCount === 1 ? "" : "s"}`,
+        ],
+      }),
     );
   }
 
@@ -74,7 +80,7 @@ export class WorktreeStatusAction extends OrcaAction {
       const handle = await resolveTerminalHandle(wt.path, agent?.terminalTitleHint ?? null, opts);
       if (handle) await terminalSwitch(handle, opts);
     } catch {
-      throw new Error("next poll reflects reality")
+      throw new Error("next poll reflects reality");
     }
     await context.poller.refreshNow();
   }

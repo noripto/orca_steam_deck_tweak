@@ -85,30 +85,26 @@ function runRaw(exe: string, args: string[], timeoutMs: number): Promise<RawRun>
       { timeout: timeoutMs, maxBuffer: 8 * 1024 * 1024, windowsHide: true },
       (error, stdout, stderr) => {
         const err = error as (NodeJS.ErrnoException & { code?: number | string }) | null;
-        const spawnFailed =
-          err != null && typeof err.code === "string" && err.code === "ENOENT";
+        const spawnFailed = err != null && typeof err.code === "string" && err.code === "ENOENT";
         resolve({
           stdout: stdout ?? "",
           stderr: stderr ?? "",
           code: err && typeof err.code === "number" ? err.code : err ? 1 : 0,
-          spawnError: spawnFailed ? err : undefined
+          spawnError: spawnFailed ? err : undefined,
         });
-      }
+      },
     );
   });
 }
 
-export async function runOrcaJson<T>(
-  args: string[],
-  options: OrcaCliOptions = {}
-): Promise<T> {
+export async function runOrcaJson<T>(args: string[], options: OrcaCliOptions = {}): Promise<T> {
   const exe = resolveCliPath(options.cliPath);
   const argv = args.includes("--json") ? args : [...args, "--json"];
   const run = await runRaw(exe, argv, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
 
   if (run.spawnError) {
     throw new OrcaCliMissingError(
-      `Orca CLI executable not found: "${exe}". Set the CLI path in the Property Inspector.`
+      `Orca CLI executable not found: "${exe}". Set the CLI path in the Property Inspector.`,
     );
   }
 
@@ -121,7 +117,7 @@ export async function runOrcaJson<T>(
   const detail = (run.stderr || run.stdout || "").trim().split("\n")[0] ?? "";
   throw new OrcaCliError({
     code: run.code === 0 ? "invalid_response" : "runtime_unavailable",
-    message: detail || `orca ${args.join(" ")} produced no JSON output.`
+    message: detail || `orca ${args.join(" ")} produced no JSON output.`,
   });
 }
 
@@ -131,7 +127,7 @@ export function tryParseEnvelope<T>(stdout: string): OrcaEnvelope<T> | null {
   try {
     return JSON.parse(text) as OrcaEnvelope<T>;
   } catch {
-    throw new Error("can't parse JSON")
+    // The bridge may emit warnings before the JSON; find the first {...} block.
   }
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");

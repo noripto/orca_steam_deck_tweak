@@ -8,7 +8,6 @@ import type { OrcaSnapshot } from "../orca/types.js";
 import { fit, renderConnectionKey, renderKey, stateVisual } from "../render.js";
 import { OrcaAction } from "./base.js";
 
-
 @action({ UUID: "dev.onorca.streamdeck.open-agent" })
 export class OpenAgentAction extends OrcaAction {
   protected render(action: WillAppearEvent<JsonObject>["action"], snapshot: OrcaSnapshot): void {
@@ -19,12 +18,18 @@ export class OpenAgentAction extends OrcaAction {
     }
     const agent = context.store.getSelectedAgent();
     if (!agent) {
-      void action.setImage(renderKey({ glyph: "⇱", color: "#8a8f98", lines: ["OPEN", "NO AGENT"] }));
+      void action.setImage(
+        renderKey({ glyph: "⇱", color: "#8a8f98", lines: ["OPEN", "NO AGENT"] }),
+      );
       return;
     }
     const visual = stateVisual(agent.state);
     void action.setImage(
-      renderKey({ glyph: "⇱", color: visual.color, lines: ["OPEN", fit(agent.label), visual.label] })
+      renderKey({
+        glyph: "⇱",
+        color: visual.color,
+        lines: ["OPEN", fit(agent.label), visual.label],
+      }),
     );
   }
 

@@ -1,9 +1,15 @@
+# dependencies
 node_modules/
-dev.onorca.streamdeck.sdPlugin/bin/
+
+dev.onorca.streamdeck.sdPlugin/
 *.streamDeckPlugin
-*.log
-.DS_Store
 coverage/
-.kiri/
+*.log
 .claude/
 .nori/
+.kiri/
+.env
+.env.*
+.vscode/
+.idea/
+.DS_Store

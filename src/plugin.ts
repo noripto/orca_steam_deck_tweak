@@ -10,7 +10,7 @@ import {
   NextAgentAction,
   NextWorktreeAction,
   PrevAgentAction,
-  PrevWorktreeAction
+  PrevWorktreeAction,
 } from "./actions/selectors.js";
 import { OpenAgentAction } from "./actions/open-agent.js";
 import { WorktreeStatusAction } from "./actions/worktree-status.js";

@@ -8,7 +8,6 @@ import type { OrcaSnapshot } from "../orca/types.js";
 import { renderConnectionKey, renderKey } from "../render.js";
 import { OrcaAction } from "./base.js";
 
-
 @action({ UUID: "dev.onorca.streamdeck.orca-status" })
 export class OrcaStatusAction extends OrcaAction {
   protected render(action: KeyDownEvent<JsonObject>["action"], snapshot: OrcaSnapshot): void {
@@ -22,12 +21,8 @@ export class OrcaStatusAction extends OrcaAction {
       renderKey({
         glyph: "◆",
         color: counts.waiting > 0 ? "#f5a623" : "#33c26a",
-        lines: [
-          `${counts.waiting} NEED`,
-          `${counts.working} WORK`,
-          `${counts.done} DONE`
-        ]
-      })
+        lines: [`${counts.waiting} NEED`, `${counts.working} WORK`, `${counts.done} DONE`],
+      }),
     );
   }
 
@@ -37,7 +32,7 @@ export class OrcaStatusAction extends OrcaAction {
     try {
       await openOrca(cliOptions(context.store.getSettings()));
     } catch {
-      throw new Error("not reflect new state")
+      throw new Error("not reflect new state");
     }
     await context.poller.refreshNow();
   }

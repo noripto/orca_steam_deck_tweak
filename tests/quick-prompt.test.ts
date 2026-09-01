@@ -5,7 +5,7 @@ import {
   QuickPromptError,
   resolveQuickPromptTarget,
   serializeQuickPrompt,
-  type QuickPromptSettings
+  type QuickPromptSettings,
 } from "../src/actions/quick-prompt-model.js";
 import { OrcaStore } from "../src/state/store.js";
 import type { NormalizedAgent } from "../src/orca/types.js";
@@ -18,7 +18,7 @@ function storeWith(agents: NormalizedAgent[], selected?: string): OrcaStore {
     worktrees: [],
     counts: { working: 0, waiting: 0, done: 0, idle: 0, unknown: 0 },
     hooksEnabled: true,
-    updatedAt: 0
+    updatedAt: 0,
   };
   if (selected) store.selectAgentId(selected);
   return store;
@@ -33,16 +33,22 @@ const agent = (id: string, path: string): NormalizedAgent => ({
   label: id,
   agentType: "claude",
   state: "working",
-  terminalTitleHint: "claude"
+  terminalTitleHint: "claude",
 });
 
 describe("serializeQuickPrompt", () => {
   it("trims prompt and defaults sendEnter to true", () => {
-    expect(serializeQuickPrompt({ prompt: "  run tests  " })).toEqual({ text: "run tests", enter: true });
+    expect(serializeQuickPrompt({ prompt: "  run tests  " })).toEqual({
+      text: "run tests",
+      enter: true,
+    });
   });
 
   it("respects sendEnter=false", () => {
-    expect(serializeQuickPrompt({ prompt: "x", sendEnter: false })).toEqual({ text: "x", enter: false });
+    expect(serializeQuickPrompt({ prompt: "x", sendEnter: false })).toEqual({
+      text: "x",
+      enter: false,
+    });
   });
 
   it("throws on empty prompt", () => {
@@ -53,7 +59,10 @@ describe("serializeQuickPrompt", () => {
 describe("resolveQuickPromptTarget", () => {
   it("uses the active agent by default", () => {
     const store = storeWith([agent("p1", "/a")]);
-    expect(resolveQuickPromptTarget({}, store)).toEqual({ worktreePath: "/a", titleHint: "claude" });
+    expect(resolveQuickPromptTarget({}, store)).toEqual({
+      worktreePath: "/a",
+      titleHint: "claude",
+    });
   });
 
   it("resolves a specific agent by id", () => {
@@ -64,14 +73,18 @@ describe("resolveQuickPromptTarget", () => {
 
   it("throws for a missing specific agent", () => {
     const store = storeWith([agent("p1", "/a")]);
-    expect(() => resolveQuickPromptTarget({ target: "specific-agent", agentId: "zzz" }, store)).toThrow(
-      QuickPromptError
-    );
+    expect(() =>
+      resolveQuickPromptTarget({ target: "specific-agent", agentId: "zzz" }, store),
+    ).toThrow(QuickPromptError);
   });
 
   it("resolves a specific worktree", () => {
     const store = storeWith([]);
-    const s: QuickPromptSettings = { target: "specific-worktree", worktreePath: "/w", titleHint: "codex" };
+    const s: QuickPromptSettings = {
+      target: "specific-worktree",
+      worktreePath: "/w",
+      titleHint: "codex",
+    };
     expect(resolveQuickPromptTarget(s, store)).toEqual({ worktreePath: "/w", titleHint: "codex" });
   });
 

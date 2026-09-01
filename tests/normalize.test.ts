@@ -5,7 +5,7 @@ import {
   normalizeAgentState,
   normalizeAgentWait,
   normalizeWorktreeStatus,
-  normalizeWorktrees
+  normalizeWorktrees,
 } from "../src/orca/normalize.js";
 import type { OrcaWorktreeSummary } from "../src/orca/types.js";
 
@@ -45,7 +45,7 @@ function wt(partial: Partial<OrcaWorktreeSummary>): OrcaWorktreeSummary {
     hasAttachedPty: false,
     status: "inactive",
     agents: [],
-    ...partial
+    ...partial,
   };
 }
 
@@ -56,9 +56,9 @@ describe("normalizeWorktrees", () => {
         path: "/a",
         agents: [
           { paneKey: "p1", state: "working", agentType: "claude" },
-          { paneKey: "p2", state: "waiting", agentType: "codex" }
-        ]
-      })
+          { paneKey: "p2", state: "waiting", agentType: "codex" },
+        ],
+      }),
     ]);
     expect(agents).toHaveLength(2);
     expect(agents[0]).toMatchObject({ id: "p1", agentType: "claude", state: "working" });
@@ -68,7 +68,7 @@ describe("normalizeWorktrees", () => {
 
   it("falls back to a synthetic agent when live but no hook rows", () => {
     const { agents } = normalizeWorktrees([
-      wt({ path: "/b", liveTerminalCount: 1, status: "permission", agents: [] })
+      wt({ path: "/b", liveTerminalCount: 1, status: "permission", agents: [] }),
     ]);
     expect(agents).toHaveLength(1);
     expect(agents[0]).toMatchObject({ id: "wt:/b#0", state: "waiting" });
@@ -76,7 +76,7 @@ describe("normalizeWorktrees", () => {
 
   it("emits no agent for a dormant worktree", () => {
     const { agents, worktrees } = normalizeWorktrees([
-      wt({ path: "/c", liveTerminalCount: 0, status: "inactive", agents: [] })
+      wt({ path: "/c", liveTerminalCount: 0, status: "inactive", agents: [] }),
     ]);
     expect(agents).toHaveLength(0);
     expect(worktrees).toHaveLength(1);
@@ -89,10 +89,16 @@ describe("normalizeWorktrees", () => {
         agents: [
           { paneKey: "a", state: "working", agentType: "claude" },
           { paneKey: "b", state: "waiting", agentType: "codex" },
-          { paneKey: "c", state: "done", agentType: "claude" }
-        ]
-      })
+          { paneKey: "c", state: "done", agentType: "claude" },
+        ],
+      }),
     ]);
-    expect(countByState(agents)).toMatchObject({ working: 1, waiting: 1, done: 1, idle: 0, unknown: 0 });
+    expect(countByState(agents)).toMatchObject({
+      working: 1,
+      waiting: 1,
+      done: 1,
+      idle: 0,
+      unknown: 0,
+    });
   });
 });

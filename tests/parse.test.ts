@@ -9,7 +9,9 @@ describe("tryParseEnvelope", () => {
   });
 
   it("parses an error envelope", () => {
-    const env = tryParseEnvelope('{"ok":false,"error":{"code":"runtime_unavailable","message":"down"}}');
+    const env = tryParseEnvelope(
+      '{"ok":false,"error":{"code":"runtime_unavailable","message":"down"}}',
+    );
     expect(env).toMatchObject({ ok: false, error: { code: "runtime_unavailable" } });
   });
 

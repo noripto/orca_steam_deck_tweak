@@ -1,11 +1,7 @@
 import { agentHooksStatus, getStatus, worktreePs } from "../orca/api.js";
 import type { OrcaCliOptions } from "../orca/cli.js";
 import { countByState, normalizeWorktrees } from "../orca/normalize.js";
-import type {
-  NormalizedAgent,
-  NormalizedWorktree,
-  OrcaSnapshot
-} from "../orca/types.js";
+import type { NormalizedAgent, NormalizedWorktree, OrcaSnapshot } from "../orca/types.js";
 
 export interface OrcaSettings {
   cliPath: string;
@@ -25,7 +21,7 @@ function emptySnapshot(): OrcaSnapshot {
     worktrees: [],
     counts: { working: 0, waiting: 0, done: 0, idle: 0, unknown: 0 },
     hooksEnabled: false,
-    updatedAt: 0
+    updatedAt: 0,
   };
 }
 
@@ -45,7 +41,8 @@ export class OrcaStore {
 
   updateSettings(patch: Partial<OrcaSettings>): void {
     this.settings = { ...this.settings, ...patch };
-    if (!Number.isFinite(this.settings.pollSeconds)) this.settings.pollSeconds = DEFAULT_SETTINGS.pollSeconds;
+    if (!Number.isFinite(this.settings.pollSeconds))
+      this.settings.pollSeconds = DEFAULT_SETTINGS.pollSeconds;
     this.settings.pollSeconds = Math.min(10, Math.max(2, this.settings.pollSeconds));
     if (!this.settings.cliPath) this.settings.cliPath = "auto";
   }
@@ -64,10 +61,7 @@ export class OrcaStore {
     let worktrees: NormalizedWorktree[] = [];
     let hooksEnabled = false;
     try {
-      const [summaries, hooks] = await Promise.all([
-        worktreePs(opts),
-        agentHooksStatus(opts)
-      ]);
+      const [summaries, hooks] = await Promise.all([worktreePs(opts), agentHooksStatus(opts)]);
       const normalized = normalizeWorktrees(summaries);
       agents = normalized.agents;
       worktrees = normalized.worktrees;
@@ -84,7 +78,7 @@ export class OrcaStore {
       worktrees,
       counts: countByState(agents),
       hooksEnabled,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
     this.reconcileSelection();
     return this.snapshot;
@@ -113,8 +107,12 @@ export class OrcaStore {
   }
 
   stepAgent(delta: number): NormalizedAgent | null {
-    return this.step(this.snapshot.agents, (a) => a.id, this.selectedAgentId, delta, (a) =>
-      this.selectAgentId(a.id)
+    return this.step(
+      this.snapshot.agents,
+      (a) => a.id,
+      this.selectedAgentId,
+      delta,
+      (a) => this.selectAgentId(a.id),
     );
   }
 
@@ -124,7 +122,7 @@ export class OrcaStore {
       (w) => w.worktreeId,
       this.selectedWorktreeId,
       delta,
-      (w) => this.selectWorktreeId(w.worktreeId)
+      (w) => this.selectWorktreeId(w.worktreeId),
     );
   }
 
@@ -133,7 +131,7 @@ export class OrcaStore {
     idOf: (t: T) => string,
     currentId: string | null,
     delta: number,
-    apply: (t: T) => void
+    apply: (t: T) => void,
   ): T | null {
     if (items.length === 0) return null;
     const currentIndex = items.findIndex((t) => idOf(t) === currentId);

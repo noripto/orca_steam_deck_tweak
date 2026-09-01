@@ -1,16 +1,19 @@
 {
   "name": "orca-streamdeck",
   "version": "0.1.0",
+  "private": true,
   "description": "Control and monitor Orca AI coding agents from an Elgato Stream Deck.",
   "type": "module",
-  "private": true,
   "scripts": {
     "icons": "node scripts/render-icons.mjs",
     "build": "rollup -c",
     "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart dev.onorca.streamdeck\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint .",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check ."
   },
   "dependencies": {
     "@elgato/streamdeck": "^2.1.2"
@@ -22,9 +25,12 @@
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.1.1",
     "@types/node": "^20.16.0",
+    "oxfmt": "^0.66.0",
+    "oxlint": "^1.81.0",
     "rollup": "^4.24.0",
     "tslib": "^2.7.0",
     "typescript": "^5.6.3",
     "vitest": "^2.1.3"
-  }
+  },
+  "packageManager": "pnpm@10.13.1"
 }

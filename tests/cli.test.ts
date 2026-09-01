@@ -3,18 +3,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("node:child_process", () => ({ execFile: vi.fn() }));
 
 import { execFile } from "node:child_process";
-import { OrcaCliError, OrcaCliMissingError, runOrcaJson } from "../src/orca/cli.js";
+import { OrcaCliMissingError, runOrcaJson } from "../src/orca/cli.js";
 
 const mockExecFile = vi.mocked(execFile);
 
-function mockRun(opts: {
-  stdout?: string;
-  stderr?: string;
-  errCode?: string | number;
-}): void {
+function mockRun(opts: { stdout?: string; stderr?: string; errCode?: string | number }): void {
   mockExecFile.mockImplementation(((_file: string, _args: string[], _o: unknown, cb: unknown) => {
     const callback = cb as (e: unknown, stdout: string, stderr: string) => void;
-    const err = opts.errCode !== undefined ? Object.assign(new Error("fail"), { code: opts.errCode }) : null;
+    const err =
+      opts.errCode !== undefined ? Object.assign(new Error("fail"), { code: opts.errCode }) : null;
     callback(err, opts.stdout ?? "", opts.stderr ?? "");
     return {} as never;
   }) as never);
@@ -41,7 +38,7 @@ describe("runOrcaJson (CLI mocked)", () => {
     mockRun({ stdout: '{"ok":true,"result":{"send":{"accepted":true}}}' });
     await runOrcaJson(
       ["terminal", "send", "--terminal", "h1", "--text", 'rm -rf / ; echo "pwn"', "--enter"],
-      { cliPath: "orca" }
+      { cliPath: "orca" },
     );
     const args = mockExecFile.mock.calls[0]![1] as string[];
     expect(args).toContain('rm -rf / ; echo "pwn"');
@@ -51,20 +48,22 @@ describe("runOrcaJson (CLI mocked)", () => {
     mockRun({ stdout: '{"ok":false,"error":{"code":"terminal_handle_stale","message":"gone"}}' });
     await expect(runOrcaJson(["terminal", "show"], { cliPath: "orca" })).rejects.toMatchObject({
       name: "OrcaCliError",
-      code: "terminal_handle_stale"
+      code: "terminal_handle_stale",
     });
   });
 
   it("throws OrcaCliMissingError when the executable is not found", async () => {
     mockRun({ errCode: "ENOENT" });
-    await expect(runOrcaJson(["status"], { cliPath: "nope" })).rejects.toBeInstanceOf(OrcaCliMissingError);
+    await expect(runOrcaJson(["status"], { cliPath: "nope" })).rejects.toBeInstanceOf(
+      OrcaCliMissingError,
+    );
   });
 
   it("throws a runtime_unavailable OrcaCliError when output is not JSON", async () => {
     mockRun({ stderr: "Orca is not running", errCode: 1 });
     await expect(runOrcaJson(["status"], { cliPath: "orca" })).rejects.toMatchObject({
       name: "OrcaCliError",
-      code: "runtime_unavailable"
+      code: "runtime_unavailable",
     });
   });
 });

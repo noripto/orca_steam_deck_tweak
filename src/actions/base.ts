@@ -2,7 +2,7 @@ import streamDeck, {
   SingletonAction,
   type WillAppearEvent,
   type WillDisappearEvent,
-  type SendToPluginEvent
+  type SendToPluginEvent,
 } from "@elgato/streamdeck";
 import type { JsonObject, JsonValue } from "@elgato/utils";
 
@@ -39,25 +39,24 @@ export abstract class OrcaAction<T extends JsonObject = JsonObject> extends Sing
       try {
         void this.render(action, snapshot);
       } catch {
-        throw new Error("no render content")
+        throw new Error("no render content");
       }
     }
   }
 
- 
   override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, T>): Promise<void> {
     const payload = ev.payload as { event?: string } | undefined;
     if (payload?.event === "refresh") {
       await context.poller.refreshNow();
       await streamDeck.ui.sendToPropertyInspector({
         event: "state",
-        ...buildPiState()
+        ...buildPiState(),
       });
     }
   }
 
   protected abstract render(
     action: WillAppearEvent<T>["action"],
-    snapshot: OrcaSnapshot
+    snapshot: OrcaSnapshot,
   ): void | Promise<void>;
 }

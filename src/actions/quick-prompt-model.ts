@@ -22,7 +22,7 @@ export const DEFAULT_QUICK_PROMPTS: Array<{ label: string; prompt: string }> = [
   { label: "Explain changes", prompt: "Explain the changes you just made." },
   { label: "Show diff", prompt: "Show me the current git diff." },
   { label: "Commit changes", prompt: "Commit the current changes with a clear message." },
-  { label: "Retry", prompt: "That didn't work. Please try a different approach." }
+  { label: "Retry", prompt: "That didn't work. Please try a different approach." },
 ];
 
 export interface ResolvedTarget {
@@ -34,7 +34,7 @@ export class QuickPromptError extends Error {}
 
 export function resolveQuickPromptTarget(
   settings: QuickPromptSettings,
-  store: OrcaStore
+  store: OrcaStore,
 ): ResolvedTarget {
   const mode = settings.target ?? "active-agent";
 
@@ -53,7 +53,10 @@ export function resolveQuickPromptTarget(
     agent = store.getSelectedAgent();
     if (!agent) throw new QuickPromptError("No active agent.");
   }
-  return { worktreePath: agent.worktreePath, titleHint: agent.terminalTitleHint ?? agent.agentType };
+  return {
+    worktreePath: agent.worktreePath,
+    titleHint: agent.terminalTitleHint ?? agent.agentType,
+  };
 }
 
 export function serializeQuickPrompt(settings: QuickPromptSettings): {

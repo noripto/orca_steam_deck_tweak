@@ -9,7 +9,7 @@ import type {
   OrcaTerminalSendResult,
   OrcaTerminalShowResult,
   OrcaWorktreePsResult,
-  OrcaWorktreeSummary
+  OrcaWorktreeSummary,
 } from "./types.js";
 
 /**
@@ -56,22 +56,22 @@ export async function worktreePs(options: OrcaCliOptions): Promise<OrcaWorktreeS
 
 export async function terminalListForWorktree(
   worktreePath: string,
-  options: OrcaCliOptions
+  options: OrcaCliOptions,
 ): Promise<OrcaTerminalListItem[]> {
   const result = await runOrcaJson<OrcaTerminalListResult>(
     ["terminal", "list", "--worktree", `path:${worktreePath}`],
-    options
+    options,
   );
   return result.terminals ?? [];
 }
 
 export async function terminalShow(
   handle: string,
-  options: OrcaCliOptions
+  options: OrcaCliOptions,
 ): Promise<OrcaTerminalShowResult["terminal"]> {
   const result = await runOrcaJson<OrcaTerminalShowResult>(
     ["terminal", "show", "--terminal", handle],
-    options
+    options,
   );
   return result.terminal;
 }
@@ -84,7 +84,7 @@ export interface SendPromptArgs {
 
 export async function terminalSend(
   args: SendPromptArgs,
-  options: OrcaCliOptions
+  options: OrcaCliOptions,
 ): Promise<boolean> {
   const argv = ["terminal", "send", "--terminal", args.handle, "--text", args.text];
   if (args.enter !== false) argv.push("--enter");
@@ -94,17 +94,17 @@ export async function terminalSend(
 
 export async function terminalSwitch(
   handle: string,
-  options: OrcaCliOptions
+  options: OrcaCliOptions,
 ): Promise<OrcaTerminalFocusResult["focus"]> {
   const result = await runOrcaJson<OrcaTerminalFocusResult>(
     ["terminal", "switch", "--terminal", handle],
-    options
+    options,
   );
   return result.focus;
 }
 
 export async function agentHooksStatus(
-  options: OrcaCliOptions
+  options: OrcaCliOptions,
 ): Promise<OrcaAgentHooksStatusResult | null> {
   try {
     return await runOrcaJson<OrcaAgentHooksStatusResult>(["agent", "hooks", "status"], options);
@@ -116,7 +116,7 @@ export async function agentHooksStatus(
 export async function resolveTerminalHandle(
   worktreePath: string,
   titleHint: string | null | undefined,
-  options: OrcaCliOptions
+  options: OrcaCliOptions,
 ): Promise<string | null> {
   const terminals = await terminalListForWorktree(worktreePath, options);
   if (terminals.length === 0) return null;

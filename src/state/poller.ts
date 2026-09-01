@@ -82,6 +82,8 @@ export class OrcaPoller {
 
 export function signatureOf(snapshot: OrcaSnapshot): string {
   const agents = snapshot.agents.map((a) => `${a.id}:${a.state}:${a.label}`).join("|");
-  const worktrees = snapshot.worktrees.map((w) => `${w.worktreeId}:${w.state}:${w.unread}`).join("|");
+  const worktrees = snapshot.worktrees
+    .map((w) => `${w.worktreeId}:${w.state}:${w.unread}`)
+    .join("|");
   return [snapshot.connection, snapshot.hooksEnabled, agents, worktrees].join("~");
 }

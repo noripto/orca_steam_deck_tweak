@@ -6,7 +6,7 @@ import type {
   OrcaAgentWait,
   OrcaRawAgentState,
   OrcaWorktreeStatus,
-  OrcaWorktreeSummary
+  OrcaWorktreeSummary,
 } from "./types.js";
 
 export function normalizeAgentState(raw: OrcaRawAgentState | string | undefined): OrcaAgentState {
@@ -25,7 +25,9 @@ export function normalizeAgentState(raw: OrcaRawAgentState | string | undefined)
   }
 }
 
-export function normalizeWorktreeStatus(raw: OrcaWorktreeStatus | string | undefined): OrcaAgentState {
+export function normalizeWorktreeStatus(
+  raw: OrcaWorktreeStatus | string | undefined,
+): OrcaAgentState {
   switch (raw) {
     case "working":
       return "working";
@@ -51,7 +53,7 @@ const STATE_PRIORITY: Record<OrcaAgentState, number> = {
   working: 3,
   done: 2,
   idle: 1,
-  unknown: 0
+  unknown: 0,
 };
 
 export function moreUrgent(a: OrcaAgentState, b: OrcaAgentState): OrcaAgentState {
@@ -93,7 +95,7 @@ export function normalizeWorktrees(worktrees: OrcaWorktreeSummary[]): {
           agentType: row.agentType ?? null,
           state,
           prompt: row.prompt ?? null,
-          terminalTitleHint: row.agentType ?? row.displayName ?? null
+          terminalTitleHint: row.agentType ?? row.displayName ?? null,
         });
       });
     } else if (wt.liveTerminalCount > 0 || wt.status !== "inactive") {
@@ -109,7 +111,7 @@ export function normalizeWorktrees(worktrees: OrcaWorktreeSummary[]): {
         agentType: null,
         state,
         prompt: null,
-        terminalTitleHint: null
+        terminalTitleHint: null,
       });
     } else {
       worktreeState = normalizeWorktreeStatus(wt.status);
@@ -123,7 +125,7 @@ export function normalizeWorktrees(worktrees: OrcaWorktreeSummary[]): {
       label: (wt.displayName && wt.displayName.trim()) || wt.branch || wt.repo,
       agentCount: rows.length,
       state: worktreeState,
-      unread: wt.unread ?? false
+      unread: wt.unread ?? false,
     });
   }
 
@@ -136,7 +138,7 @@ export function countByState(agents: NormalizedAgent[]): Record<OrcaAgentState, 
     waiting: 0,
     done: 0,
     idle: 0,
-    unknown: 0
+    unknown: 0,
   };
   for (const a of agents) counts[a.state] += 1;
   return counts;

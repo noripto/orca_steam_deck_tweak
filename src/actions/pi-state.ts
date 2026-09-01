@@ -11,7 +11,14 @@ export interface PiState {
     state: string;
     worktreePath: string;
   }>;
-  worktrees: Array<{ id: string; label: string; path: string; repo: string; branch: string; state: string }>;
+  worktrees: Array<{
+    id: string;
+    label: string;
+    path: string;
+    repo: string;
+    branch: string;
+    state: string;
+  }>;
 }
 
 export function buildPiState(): PiState {
@@ -26,7 +33,7 @@ export function buildPiState(): PiState {
       label: a.label,
       agentType: a.agentType,
       state: a.state,
-      worktreePath: a.worktreePath
+      worktreePath: a.worktreePath,
     })),
     worktrees: snapshot.worktrees.map((w) => ({
       id: w.worktreeId,
@@ -34,7 +41,7 @@ export function buildPiState(): PiState {
       path: w.path,
       repo: w.repo,
       branch: w.branch,
-      state: w.state
-    }))
+      state: w.state,
+    })),
   };
 }

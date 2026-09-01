@@ -1,8 +1,4 @@
-import {
-  action,
-  type KeyDownEvent,
-  type WillAppearEvent
-} from "@elgato/streamdeck";
+import { action, type KeyDownEvent, type WillAppearEvent } from "@elgato/streamdeck";
 
 import { context } from "../context.js";
 import { resolveTerminalHandle, terminalSend } from "../orca/api.js";
@@ -15,7 +11,7 @@ import {
   QuickPromptError,
   resolveQuickPromptTarget,
   serializeQuickPrompt,
-  type QuickPromptSettings
+  type QuickPromptSettings,
 } from "./quick-prompt-model.js";
 
 @action({ UUID: "dev.onorca.streamdeck.quick-prompt" })
@@ -24,7 +20,7 @@ export class QuickPromptAction extends OrcaAction<QuickPromptSettings> {
 
   protected async render(
     action: WillAppearEvent<QuickPromptSettings>["action"],
-    snapshot: OrcaSnapshot
+    snapshot: OrcaSnapshot,
   ): Promise<void> {
     void action.setTitle("");
     const settings = await action.getSettings();
@@ -34,7 +30,7 @@ export class QuickPromptAction extends OrcaAction<QuickPromptSettings> {
       return;
     }
     void action.setImage(
-      renderKey({ glyph: "➤", color: "#4a90e2", lines: this.splitLabel(label) })
+      renderKey({ glyph: "➤", color: "#4a90e2", lines: this.splitLabel(label) }),
     );
   }
 
@@ -53,7 +49,7 @@ export class QuickPromptAction extends OrcaAction<QuickPromptSettings> {
       if (!armedAt || Date.now() - armedAt > 3000) {
         this.armed.set(id, Date.now());
         void ev.action.setImage(
-          renderKey({ glyph: "?", color: "#f5a623", lines: ["CONFIRM", "TAP AGAIN"] })
+          renderKey({ glyph: "?", color: "#f5a623", lines: ["CONFIRM", "TAP AGAIN"] }),
         );
         return;
       }
@@ -73,7 +69,7 @@ export class QuickPromptAction extends OrcaAction<QuickPromptSettings> {
     } catch (err) {
       if (err instanceof QuickPromptError) {
         void ev.action.setImage(
-          renderKey({ glyph: "!", color: "#e0555b", lines: ["ERROR", fit(err.message, 12)] })
+          renderKey({ glyph: "!", color: "#e0555b", lines: ["ERROR", fit(err.message, 12)] }),
         );
       }
       await ev.action.showAlert();

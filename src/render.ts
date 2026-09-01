@@ -11,10 +11,14 @@ const STATE_VISUALS: Record<OrcaAgentState, { glyph: string; color: string; labe
   waiting: { glyph: "!", color: "#f5a623", label: "NEEDS YOU" },
   done: { glyph: "✓", color: "#4a90e2", label: "DONE" },
   idle: { glyph: "○", color: "#8a8f98", label: "IDLE" },
-  unknown: { glyph: "?", color: "#8a8f98", label: "UNKNOWN" }
+  unknown: { glyph: "?", color: "#8a8f98", label: "UNKNOWN" },
 };
 
-export function stateVisual(state: OrcaAgentState): { glyph: string; color: string; label: string } {
+export function stateVisual(state: OrcaAgentState): {
+  glyph: string;
+  color: string;
+  label: string;
+} {
   return STATE_VISUALS[state];
 }
 
@@ -44,7 +48,7 @@ export function renderKey(visual: KeyVisual): string {
       const size = i === 0 ? 19 : 16;
       const fill = i === 0 ? "#ffffff" : "#c7ccd4";
       return `<text x="72" y="${y}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="${size}" font-weight="${weight}" fill="${fill}">${escapeXml(
-        fit(line, i === 0 ? 10 : 12)
+        fit(line, i === 0 ? 10 : 12),
       )}</text>`;
     })
     .join("");
@@ -52,7 +56,7 @@ export function renderKey(visual: KeyVisual): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
 <rect width="144" height="144" rx="14" fill="#1b1d21"/>
 <text x="72" y="46" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" font-weight="700" fill="${visual.color}">${escapeXml(
-    visual.glyph
+    visual.glyph,
   )}</text>
 ${textEls}
 </svg>`;

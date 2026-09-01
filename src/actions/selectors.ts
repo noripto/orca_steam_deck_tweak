@@ -6,18 +6,24 @@ import type { OrcaSnapshot } from "../orca/types.js";
 import { fit, renderConnectionKey, renderKey, stateVisual } from "../render.js";
 import { OrcaAction } from "./base.js";
 
-function agentFace(snapshot: OrcaSnapshot, arrow: string): { glyph: string; color: string; lines: string[] } {
+function agentFace(
+  snapshot: OrcaSnapshot,
+  arrow: string,
+): { glyph: string; color: string; lines: string[] } {
   const agent = context.store.getSelectedAgent();
   if (!agent) return { glyph: arrow, color: "#8a8f98", lines: ["AGENT", "NONE"] };
   const visual = stateVisual(agent.state);
   return {
     glyph: arrow,
     color: visual.color,
-    lines: [fit(agent.agentType ?? "agent"), fit(agent.label), visual.label]
+    lines: [fit(agent.agentType ?? "agent"), fit(agent.label), visual.label],
   };
 }
 
-function worktreeFace(snapshot: OrcaSnapshot, arrow: string): { glyph: string; color: string; lines: string[] } {
+function worktreeFace(
+  snapshot: OrcaSnapshot,
+  arrow: string,
+): { glyph: string; color: string; lines: string[] } {
   const wt = context.store.getSelectedWorktree();
   if (!wt) return { glyph: arrow, color: "#8a8f98", lines: ["WORKTREE", "NONE"] };
   const visual = stateVisual(wt.state);
@@ -27,7 +33,11 @@ function worktreeFace(snapshot: OrcaSnapshot, arrow: string): { glyph: string; c
 abstract class StepAction extends OrcaAction {
   protected abstract arrow: string;
   protected abstract step(): void;
-  protected abstract face(snapshot: OrcaSnapshot): { glyph: string; color: string; lines: string[] };
+  protected abstract face(snapshot: OrcaSnapshot): {
+    glyph: string;
+    color: string;
+    lines: string[];
+  };
 
   protected render(action: WillAppearEvent<JsonObject>["action"], snapshot: OrcaSnapshot): void {
     void action.setTitle("");

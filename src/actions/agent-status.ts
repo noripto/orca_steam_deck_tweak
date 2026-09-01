@@ -7,7 +7,6 @@ import type { NormalizedAgent, OrcaSnapshot } from "../orca/types.js";
 import { fit, renderConnectionKey, renderKey, stateVisual } from "../render.js";
 import { OrcaAction } from "./base.js";
 
-
 type AgentStatusSettings = { slot?: number };
 
 @action({ UUID: "dev.onorca.streamdeck.agent-status" })
@@ -21,7 +20,7 @@ export class AgentStatusAction extends OrcaAction<AgentStatusSettings> {
 
   protected async render(
     action: WillAppearEvent<AgentStatusSettings>["action"],
-    snapshot: OrcaSnapshot
+    snapshot: OrcaSnapshot,
   ): Promise<void> {
     void action.setTitle("");
     if (snapshot.connection !== "online") {
@@ -39,8 +38,8 @@ export class AgentStatusAction extends OrcaAction<AgentStatusSettings> {
       renderKey({
         glyph: visual.glyph,
         color: visual.color,
-        lines: [fit(agent.agentType ?? "agent"), fit(agent.label), visual.label]
-      })
+        lines: [fit(agent.agentType ?? "agent"), fit(agent.label), visual.label],
+      }),
     );
   }
 

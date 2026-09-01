@@ -8,7 +8,6 @@ import type { OrcaSnapshot } from "../orca/types.js";
 import { renderConnectionKey, renderKey } from "../render.js";
 import { OrcaAction } from "./base.js";
 
-
 @action({ UUID: "dev.onorca.streamdeck.needs-input" })
 export class NeedsInputAction extends OrcaAction {
   protected render(action: KeyDownEvent<JsonObject>["action"], snapshot: OrcaSnapshot): void {
@@ -23,7 +22,7 @@ export class NeedsInputAction extends OrcaAction {
       return;
     }
     void action.setImage(
-      renderKey({ glyph: "!", color: "#f5a623", lines: ["NEEDS", String(waiting)] })
+      renderKey({ glyph: "!", color: "#f5a623", lines: ["NEEDS", String(waiting)] }),
     );
   }
 
