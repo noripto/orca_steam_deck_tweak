@@ -1,7 +1,6 @@
 import type { KeyDownEvent, WillAppearEvent } from "@elgato/streamdeck";
 
 import { context } from "../context.js";
-import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import {
   openOrca,
@@ -11,6 +10,7 @@ import {
 import type { NormalizedAgent, OrcaSnapshot } from "../orca/types.js";
 import { fit, renderConnectionKey, renderKey, stateVisual } from "../render.js";
 import { cliOptions } from "../state/store.js";
+import { ACTION_UUID } from "../uuid.js";
 import { OrcaAction } from "./base.js";
 
 // Action settings reach the SDK through a JsonObject constraint, which an

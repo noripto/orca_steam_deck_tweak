@@ -2,12 +2,12 @@ import type { KeyDownEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
-import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import { openOrca } from "../orca/api.js";
 import type { OrcaSnapshot } from "../orca/types.js";
 import { renderConnectionKey, renderKey } from "../render.js";
 import { cliOptions } from "../state/store.js";
+import { ACTION_UUID } from "../uuid.js";
 import { OrcaAction } from "./base.js";
 
 export class OrcaStatusAction extends OrcaAction {
