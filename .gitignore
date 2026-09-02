@@ -1,7 +1,10 @@
 # dependencies
 node_modules/
 
-dev.onorca.streamdeck.sdPlugin/
+# Stream Deck plugin build output (manifest.json and ui/ are source, keep them tracked)
+dev.onorca.streamdeck.sdPlugin/bin/
+dev.onorca.streamdeck.sdPlugin/imgs/
+dev.onorca.streamdeck.sdPlugin/logs/
 *.streamDeckPlugin
 coverage/
 *.log
