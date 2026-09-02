@@ -1,7 +1,7 @@
-import { action } from "@elgato/streamdeck";
 import type { KeyDownEvent, WillAppearEvent } from "@elgato/streamdeck";
 
 import { context } from "../context.js";
+import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import {
   openOrca,
@@ -29,8 +29,9 @@ const pickAgent = (
   return context.store.getSelectedAgent();
 };
 
-@action({ UUID: "dev.orca-ade.streamdeck.agent-status" })
 export class AgentStatusAction extends OrcaAction<AgentStatusSettings> {
+  override readonly manifestId = ACTION_UUID.agentStatus;
+
   // oxlint-disable-next-line eslint/class-methods-use-this
   protected async render(
     key: WillAppearEvent<AgentStatusSettings>["action"],

@@ -1,4 +1,3 @@
-import { action } from "@elgato/streamdeck";
 import type {
   KeyDownEvent,
   WillAppearEvent,
@@ -8,6 +7,7 @@ import type {
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
+import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import {
   openOrca,
@@ -52,8 +52,9 @@ const openSelectedWorktree = async (
   await context.poller.refreshNow();
 };
 
-@action({ UUID: "dev.orca-ade.streamdeck.worktree-status" })
 export class WorktreeStatusAction extends OrcaAction {
+  override readonly manifestId = ACTION_UUID.worktreeStatus;
+
   // oxlint-disable-next-line eslint/class-methods-use-this
   protected render(
     key: WillAppearEvent<JsonObject>["action"],
