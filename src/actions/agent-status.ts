@@ -29,7 +29,7 @@ const pickAgent = (
   return context.store.getSelectedAgent();
 };
 
-@action({ UUID: "dev.onorca.streamdeck.agent-status" })
+@action({ UUID: "dev.orca-ade.streamdeck.agent-status" })
 export class AgentStatusAction extends OrcaAction<AgentStatusSettings> {
   // oxlint-disable-next-line eslint/class-methods-use-this
   protected async render(

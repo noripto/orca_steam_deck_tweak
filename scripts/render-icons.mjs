@@ -4,7 +4,13 @@ import path from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 
 const root = path.join(import.meta.dirname, "..");
-const outRoot = path.join(root, "dev.onorca.streamdeck.sdPlugin", "imgs");
+
+// The plugin folder name is `<manifest UUID>.sdPlugin`, so read it rather than
+// repeating the UUID here.
+const manifest = JSON.parse(
+  readFileSync(path.join(root, "src", "manifest.json"), "utf-8")
+);
+const outRoot = path.join(root, `${manifest.UUID}.sdPlugin`, "imgs");
 
 const jobs = [
   ["plugin/marketplace.svg", "plugin/marketplace", 256],

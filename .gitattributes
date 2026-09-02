@@ -1,0 +1,8 @@
+# The Ultracite oxfmt preset enforces LF. Without this, core.autocrlf=true
+# checks files out as CRLF on Windows and `vp check` reports every file as
+# unformatted, while the same tree is clean under WSL.
+* text=auto eol=lf
+
+# Rendered icons and any packaged plugin are binary.
+*.png binary
+*.streamDeckPlugin binary

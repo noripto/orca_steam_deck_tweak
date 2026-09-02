@@ -14,7 +14,7 @@ import { renderConnectionKey, renderKey } from "../render.js";
 import { cliOptions } from "../state/store.js";
 import { OrcaAction } from "./base.js";
 
-@action({ UUID: "dev.onorca.streamdeck.needs-input" })
+@action({ UUID: "dev.orca-ade.streamdeck.needs-input" })
 export class NeedsInputAction extends OrcaAction {
   // oxlint-disable-next-line eslint/class-methods-use-this
   protected render(

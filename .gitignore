@@ -1,6 +1,7 @@
 node_modules/
 
-dev.onorca.streamdeck.sdPlugin/
+# Built by `vp pack` in full (bundle + manifest + ui + imgs).
+dev.orca-ade.streamdeck.sdPlugin/
 *.streamDeckPlugin
 coverage/
 *.log

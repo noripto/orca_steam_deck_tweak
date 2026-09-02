@@ -4,7 +4,7 @@ import { context } from "../context.js";
 import { agentFace } from "./faces.js";
 import { StepAction } from "./step-action.js";
 
-@action({ UUID: "dev.onorca.streamdeck.prev-agent" })
+@action({ UUID: "dev.orca-ade.streamdeck.prev-agent" })
 export class PrevAgentAction extends StepAction {
   constructor() {
     super(
