@@ -1,38 +1,52 @@
-import { action, type KeyDownEvent } from "@elgato/streamdeck";
+import { action } from "@elgato/streamdeck";
+import type { KeyDownEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
+import { logger } from "../logger.js";
 import { openOrca } from "../orca/api.js";
-import { cliOptions } from "../state/store.js";
 import type { OrcaSnapshot } from "../orca/types.js";
 import { renderConnectionKey, renderKey } from "../render.js";
+import { cliOptions } from "../state/store.js";
 import { OrcaAction } from "./base.js";
 
 @action({ UUID: "dev.onorca.streamdeck.orca-status" })
 export class OrcaStatusAction extends OrcaAction {
-  protected render(action: KeyDownEvent<JsonObject>["action"], snapshot: OrcaSnapshot): void {
-    void action.setTitle("");
+  // oxlint-disable-next-line eslint/class-methods-use-this
+  protected render(
+    key: KeyDownEvent<JsonObject>["action"],
+    snapshot: OrcaSnapshot
+  ): void {
+    void key.setTitle("");
     if (snapshot.connection !== "online") {
-      void action.setImage(renderConnectionKey(snapshot.connection));
+      void key.setImage(renderConnectionKey(snapshot.connection));
       return;
     }
     const { counts } = snapshot;
-    void action.setImage(
+    void key.setImage(
       renderKey({
-        glyph: "◆",
         color: counts.waiting > 0 ? "#f5a623" : "#33c26a",
-        lines: [`${counts.waiting} NEED`, `${counts.working} WORK`, `${counts.done} DONE`],
-      }),
+        glyph: "◆",
+        lines: [
+          `${counts.waiting} NEED`,
+          `${counts.working} WORK`,
+          `${counts.done} DONE`,
+        ],
+      })
     );
   }
 
-  override async onKeyDown(_ev: KeyDownEvent<JsonObject>): Promise<void> {
+  // oxlint-disable-next-line eslint/class-methods-use-this
+  override async onKeyDown(ev: KeyDownEvent<JsonObject>): Promise<void> {
     const snapshot = context.store.getSnapshot();
-    if (snapshot.connection === "cli-missing") return;
+    if (snapshot.connection === "cli-missing") {
+      return;
+    }
     try {
       await openOrca(cliOptions(context.store.getSettings()));
-    } catch {
-      throw new Error("not reflect new state");
+    } catch (error) {
+      logger.error("failed to bring Orca to the front", error);
+      await ev.action.showAlert();
     }
     await context.poller.refreshNow();
   }

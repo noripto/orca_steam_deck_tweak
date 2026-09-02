@@ -57,10 +57,19 @@ export interface OrcaAgentRow {
   updatedAt?: number;
 }
 
-export type OrcaRawAgentState = "working" | "waiting" | "blocked" | "idle" | "done";
+export type OrcaRawAgentState =
+  | "working"
+  | "waiting"
+  | "blocked"
+  | "idle"
+  | "done";
 
 /** Per-worktree fallback status derived from terminal titles / PTY liveness. */
-export type OrcaWorktreeStatus = "inactive" | "active" | "working" | "permission";
+export type OrcaWorktreeStatus =
+  | "inactive"
+  | "active"
+  | "working"
+  | "permission";
 
 export interface OrcaWorktreeSummary {
   worktreeId: string;
@@ -154,13 +163,18 @@ export interface OrcaAgentHooksStatusResult {
   enabled: boolean;
   settingsPath: string;
   appliedBy: string;
-  statuses: Array<{ agent: string; state: string }>;
+  statuses: { agent: string; state: string }[];
 }
 
 /* --------------------------------------------------- normalized (plugin) */
 
 /** The single normalized state the whole UI layer works with. */
-export type OrcaAgentState = "working" | "waiting" | "done" | "idle" | "unknown";
+export type OrcaAgentState =
+  | "working"
+  | "waiting"
+  | "done"
+  | "idle"
+  | "unknown";
 
 /** Normalized, UI-facing agent. Never leaks raw Orca state strings upward. */
 export interface NormalizedAgent {

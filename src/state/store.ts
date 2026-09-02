@@ -1,29 +1,53 @@
 import { agentHooksStatus, getStatus, worktreePs } from "../orca/api.js";
 import type { OrcaCliOptions } from "../orca/cli.js";
 import { countByState, normalizeWorktrees } from "../orca/normalize.js";
-import type { NormalizedAgent, NormalizedWorktree, OrcaSnapshot } from "../orca/types.js";
+import type {
+  NormalizedAgent,
+  NormalizedWorktree,
+  OrcaSnapshot,
+} from "../orca/types.js";
 
 export interface OrcaSettings {
   cliPath: string;
   pollSeconds: number;
 }
 
-export const DEFAULT_SETTINGS: OrcaSettings = { cliPath: "auto", pollSeconds: 3 };
+export const DEFAULT_SETTINGS: OrcaSettings = {
+  cliPath: "auto",
+  pollSeconds: 3,
+};
 
-export function cliOptions(settings: OrcaSettings): OrcaCliOptions {
-  return { cliPath: settings.cliPath };
-}
+export const cliOptions = (settings: OrcaSettings): OrcaCliOptions => ({
+  cliPath: settings.cliPath,
+});
 
-function emptySnapshot(): OrcaSnapshot {
-  return {
-    connection: "offline",
-    agents: [],
-    worktrees: [],
-    counts: { working: 0, waiting: 0, done: 0, idle: 0, unknown: 0 },
-    hooksEnabled: false,
-    updatedAt: 0,
-  };
-}
+const emptySnapshot = (): OrcaSnapshot => ({
+  agents: [],
+  connection: "offline",
+  counts: { done: 0, idle: 0, unknown: 0, waiting: 0, working: 0 },
+  hooksEnabled: false,
+  updatedAt: 0,
+  worktrees: [],
+});
+
+/** Move a selection `delta` places through `items`, wrapping at both ends. */
+const stepSelection = <T>(
+  items: T[],
+  idOf: (t: T) => string,
+  currentId: string | null,
+  delta: number,
+  apply: (t: T) => void
+): T | null => {
+  const currentIndex = items.findIndex((t) => idOf(t) === currentId);
+  const base = Math.max(currentIndex, 0);
+  const nextIndex = (base + delta + items.length) % items.length;
+  const next = items[nextIndex];
+  if (!next) {
+    return null;
+  }
+  apply(next);
+  return next;
+};
 
 export class OrcaStore {
   private snapshot: OrcaSnapshot = emptySnapshot();
@@ -41,10 +65,16 @@ export class OrcaStore {
 
   updateSettings(patch: Partial<OrcaSettings>): void {
     this.settings = { ...this.settings, ...patch };
-    if (!Number.isFinite(this.settings.pollSeconds))
+    if (!Number.isFinite(this.settings.pollSeconds)) {
       this.settings.pollSeconds = DEFAULT_SETTINGS.pollSeconds;
-    this.settings.pollSeconds = Math.min(10, Math.max(2, this.settings.pollSeconds));
-    if (!this.settings.cliPath) this.settings.cliPath = "auto";
+    }
+    this.settings.pollSeconds = Math.min(
+      10,
+      Math.max(2, this.settings.pollSeconds)
+    );
+    if (!this.settings.cliPath) {
+      this.settings.cliPath = "auto";
+    }
   }
 
   async refresh(): Promise<OrcaSnapshot> {
@@ -52,7 +82,11 @@ export class OrcaStore {
     const status = await getStatus(opts);
 
     if (status.connection !== "online") {
-      this.snapshot = { ...emptySnapshot(), connection: status.connection, updatedAt: Date.now() };
+      this.snapshot = {
+        ...emptySnapshot(),
+        connection: status.connection,
+        updatedAt: Date.now(),
+      };
       this.reconcileSelection();
       return this.snapshot;
     }
@@ -61,24 +95,29 @@ export class OrcaStore {
     let worktrees: NormalizedWorktree[] = [];
     let hooksEnabled = false;
     try {
-      const [summaries, hooks] = await Promise.all([worktreePs(opts), agentHooksStatus(opts)]);
-      const normalized = normalizeWorktrees(summaries);
-      agents = normalized.agents;
-      worktrees = normalized.worktrees;
+      const [summaries, hooks] = await Promise.all([
+        worktreePs(opts),
+        agentHooksStatus(opts),
+      ]);
+      ({ agents, worktrees } = normalizeWorktrees(summaries));
       hooksEnabled = hooks?.enabled ?? false;
     } catch {
-      this.snapshot = { ...emptySnapshot(), connection: "error", updatedAt: Date.now() };
+      this.snapshot = {
+        ...emptySnapshot(),
+        connection: "error",
+        updatedAt: Date.now(),
+      };
       this.reconcileSelection();
       return this.snapshot;
     }
 
     this.snapshot = {
-      connection: "online",
       agents,
-      worktrees,
+      connection: "online",
       counts: countByState(agents),
       hooksEnabled,
       updatedAt: Date.now(),
+      worktrees,
     };
     this.reconcileSelection();
     return this.snapshot;
@@ -86,20 +125,26 @@ export class OrcaStore {
 
   getSelectedAgent(): NormalizedAgent | null {
     const { agents } = this.snapshot;
-    if (agents.length === 0) return null;
-    return agents.find((a) => a.id === this.selectedAgentId) ?? agents[0]!;
+    const [first] = agents;
+    return agents.find((a) => a.id === this.selectedAgentId) ?? first ?? null;
   }
 
   getSelectedWorktree(): NormalizedWorktree | null {
     const { worktrees } = this.snapshot;
-    if (worktrees.length === 0) return null;
-    return worktrees.find((w) => w.worktreeId === this.selectedWorktreeId) ?? worktrees[0]!;
+    const [first] = worktrees;
+    return (
+      worktrees.find((w) => w.worktreeId === this.selectedWorktreeId) ??
+      first ??
+      null
+    );
   }
 
   selectAgentId(id: string): void {
     this.selectedAgentId = id;
     const agent = this.snapshot.agents.find((a) => a.id === id);
-    if (agent) this.selectedWorktreeId = agent.worktreeId;
+    if (agent) {
+      this.selectedWorktreeId = agent.worktreeId;
+    }
   }
 
   selectWorktreeId(id: string): void {
@@ -107,53 +152,41 @@ export class OrcaStore {
   }
 
   stepAgent(delta: number): NormalizedAgent | null {
-    return this.step(
+    return stepSelection(
       this.snapshot.agents,
       (a) => a.id,
       this.selectedAgentId,
       delta,
-      (a) => this.selectAgentId(a.id),
+      (a) => this.selectAgentId(a.id)
     );
   }
 
   stepWorktree(delta: number): NormalizedWorktree | null {
-    return this.step(
+    return stepSelection(
       this.snapshot.worktrees,
       (w) => w.worktreeId,
       this.selectedWorktreeId,
       delta,
-      (w) => this.selectWorktreeId(w.worktreeId),
+      (w) => this.selectWorktreeId(w.worktreeId)
     );
   }
 
-  private step<T>(
-    items: T[],
-    idOf: (t: T) => string,
-    currentId: string | null,
-    delta: number,
-    apply: (t: T) => void,
-  ): T | null {
-    if (items.length === 0) return null;
-    const currentIndex = items.findIndex((t) => idOf(t) === currentId);
-    const base = currentIndex >= 0 ? currentIndex : 0;
-    const nextIndex = (base + delta + items.length) % items.length;
-    const next = items[nextIndex]!;
-    apply(next);
-    return next;
-  }
-
   getNeedsInputAgent(): NormalizedAgent | null {
-    const waiting = this.snapshot.agents.filter((a) => a.state === "waiting");
-    return waiting[0] ?? null;
+    return this.snapshot.agents.find((a) => a.state === "waiting") ?? null;
   }
 
   private reconcileSelection(): void {
-    if (this.selectedAgentId && !this.snapshot.agents.some((a) => a.id === this.selectedAgentId)) {
+    if (
+      this.selectedAgentId &&
+      !this.snapshot.agents.some((a) => a.id === this.selectedAgentId)
+    ) {
       this.selectedAgentId = this.snapshot.agents[0]?.id ?? null;
     }
     if (
       this.selectedWorktreeId &&
-      !this.snapshot.worktrees.some((w) => w.worktreeId === this.selectedWorktreeId)
+      !this.snapshot.worktrees.some(
+        (w) => w.worktreeId === this.selectedWorktreeId
+      )
     ) {
       this.selectedWorktreeId = this.snapshot.worktrees[0]?.worktreeId ?? null;
     }
