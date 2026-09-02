@@ -1,8 +1,8 @@
-import { action } from "@elgato/streamdeck";
 import type { KeyDownEvent, WillAppearEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
+import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import {
   openOrca,
@@ -14,8 +14,9 @@ import { fit, renderConnectionKey, renderKey, stateVisual } from "../render.js";
 import { cliOptions } from "../state/store.js";
 import { OrcaAction } from "./base.js";
 
-@action({ UUID: "dev.orca-ade.streamdeck.open-agent" })
 export class OpenAgentAction extends OrcaAction {
+  override readonly manifestId = ACTION_UUID.openAgent;
+
   // oxlint-disable-next-line eslint/class-methods-use-this
   protected render(
     key: WillAppearEvent<JsonObject>["action"],

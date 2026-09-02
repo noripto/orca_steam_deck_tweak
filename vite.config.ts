@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 import ultraciteFmt from "ultracite/oxfmt";
 import ultraciteLint from "ultracite/oxlint/core";
@@ -58,6 +58,18 @@ export default defineConfig({
       // so a single `vp pack` produces an installable plugin.
       "build:prepare": async () => {
         await import("./scripts/render-icons.mjs");
+      },
+      // This repo is `"type": "module"`, and Node resolves a file's module
+      // system by walking up to the nearest package.json — which, through the
+      // symlink Stream Deck follows, is this project's. Without this marker the
+      // CommonJS bundle is parsed as ESM and dies on `require`. A packaged
+      // plugin has no parent package.json at all, so it is needed there too.
+      "build:done": () => {
+        writeFileSync(
+          `${sdPlugin}/bin/package.json`,
+          `${JSON.stringify({ type: "commonjs" }, null, 2)}
+`
+        );
       },
     },
     outDir: `${sdPlugin}/bin`,

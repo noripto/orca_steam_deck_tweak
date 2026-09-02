@@ -1,11 +1,12 @@
-import { action } from "@elgato/streamdeck";
 
 import { context } from "../context.js";
+import { ACTION_UUID } from "../uuid.js";
 import { agentFace } from "./faces.js";
 import { StepAction } from "./step-action.js";
 
-@action({ UUID: "dev.orca-ade.streamdeck.prev-agent" })
 export class PrevAgentAction extends StepAction {
+  override readonly manifestId = ACTION_UUID.prevAgent;
+
   constructor() {
     super(
       "◀",

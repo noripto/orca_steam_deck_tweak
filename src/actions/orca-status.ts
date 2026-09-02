@@ -1,8 +1,8 @@
-import { action } from "@elgato/streamdeck";
 import type { KeyDownEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
+import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import { openOrca } from "../orca/api.js";
 import type { OrcaSnapshot } from "../orca/types.js";
@@ -10,8 +10,9 @@ import { renderConnectionKey, renderKey } from "../render.js";
 import { cliOptions } from "../state/store.js";
 import { OrcaAction } from "./base.js";
 
-@action({ UUID: "dev.orca-ade.streamdeck.orca-status" })
 export class OrcaStatusAction extends OrcaAction {
+  override readonly manifestId = ACTION_UUID.orcaStatus;
+
   // oxlint-disable-next-line eslint/class-methods-use-this
   protected render(
     key: KeyDownEvent<JsonObject>["action"],

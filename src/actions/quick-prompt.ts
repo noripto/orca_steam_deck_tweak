@@ -1,7 +1,7 @@
-import { action } from "@elgato/streamdeck";
 import type { KeyDownEvent, WillAppearEvent } from "@elgato/streamdeck";
 
 import { context } from "../context.js";
+import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import { resolveTerminalHandle, terminalSend } from "../orca/api.js";
 import type { OrcaSnapshot } from "../orca/types.js";
@@ -25,8 +25,9 @@ const splitLabel = (label: string): string[] => {
   return [fit(head), fit(rest.join(" "))];
 };
 
-@action({ UUID: "dev.orca-ade.streamdeck.quick-prompt" })
 export class QuickPromptAction extends OrcaAction<QuickPromptSettings> {
+  override readonly manifestId = ACTION_UUID.quickPrompt;
+
   private armed = new Map<string, number>();
 
   // oxlint-disable-next-line eslint/class-methods-use-this
