@@ -14,7 +14,7 @@ import { fit, renderConnectionKey, renderKey, stateVisual } from "../render.js";
 import { cliOptions } from "../state/store.js";
 import { OrcaAction } from "./base.js";
 
-@action({ UUID: "dev.onorca.streamdeck.open-agent" })
+@action({ UUID: "dev.orca-ade.streamdeck.open-agent" })
 export class OpenAgentAction extends OrcaAction {
   // oxlint-disable-next-line eslint/class-methods-use-this
   protected render(

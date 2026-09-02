@@ -4,7 +4,7 @@ import { context } from "../context.js";
 import { worktreeFace } from "./faces.js";
 import { StepAction } from "./step-action.js";
 
-@action({ UUID: "dev.onorca.streamdeck.prev-worktree" })
+@action({ UUID: "dev.orca-ade.streamdeck.prev-worktree" })
 export class PrevWorktreeAction extends StepAction {
   constructor() {
     super(

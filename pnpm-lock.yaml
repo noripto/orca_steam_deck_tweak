@@ -27,6 +27,9 @@ importers:
       '@elgato/streamdeck':
         specifier: ^2.1.2
         version: 2.1.2
+      '@elgato/utils':
+        specifier: 0.6.0
+        version: 0.6.0
     devDependencies:
       '@elgato/cli':
         specifier: ^1.9.0

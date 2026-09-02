@@ -52,7 +52,7 @@ const openSelectedWorktree = async (
   await context.poller.refreshNow();
 };
 
-@action({ UUID: "dev.onorca.streamdeck.worktree-status" })
+@action({ UUID: "dev.orca-ade.streamdeck.worktree-status" })
 export class WorktreeStatusAction extends OrcaAction {
   // oxlint-disable-next-line eslint/class-methods-use-this
   protected render(

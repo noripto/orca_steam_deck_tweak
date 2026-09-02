@@ -25,7 +25,7 @@ const splitLabel = (label: string): string[] => {
   return [fit(head), fit(rest.join(" "))];
 };
 
-@action({ UUID: "dev.onorca.streamdeck.quick-prompt" })
+@action({ UUID: "dev.orca-ade.streamdeck.quick-prompt" })
 export class QuickPromptAction extends OrcaAction<QuickPromptSettings> {
   private armed = new Map<string, number>();
 

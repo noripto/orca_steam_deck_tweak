@@ -13,10 +13,11 @@
     "test": "vp test run",
     "test:watch": "vp test",
     "typecheck": "tsc --noEmit",
-    "validate": "streamdeck validate dev.onorca.streamdeck.sdPlugin"
+    "validate": "streamdeck validate dev.orca-ade.streamdeck.sdPlugin"
   },
   "dependencies": {
-    "@elgato/streamdeck": "^2.1.2"
+    "@elgato/streamdeck": "^2.1.2",
+    "@elgato/utils": "0.6.0"
   },
   "devDependencies": {
     "@elgato/cli": "^1.9.0",
