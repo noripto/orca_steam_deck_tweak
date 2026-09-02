@@ -4,8 +4,6 @@ import ultraciteFmt from "ultracite/oxfmt";
 import ultraciteLint from "ultracite/oxlint/core";
 import { defineConfig } from "vite-plus";
 
-// Stream Deck requires the plugin folder to be named `<UUID>.sdPlugin`, so the
-// manifest is the single source of truth for the UUID.
 const manifest = JSON.parse(readFileSync("src/manifest.json", "utf-8")) as {
   UUID: string;
 };
@@ -18,8 +16,6 @@ export default defineConfig({
   },
 
   lint: {
-    // The plugin itself runs as a Node process launched by the Stream Deck
-    // host. src/ui is the only browser code, and it gets its own override.
     env: { browser: false, builtin: true, es2022: true, node: true },
     extends: [ultraciteLint],
     ignorePatterns: [
@@ -35,14 +31,6 @@ export default defineConfig({
     ],
   },
 
-  /**
-   * `vp pack` builds the whole plugin folder, not just the bundle: the Stream
-   * Deck host launches manifest.CodePath ("bin/plugin.js") as a Node process
-   * and the packaged plugin ships no node_modules, so the SDK is inlined and
-   * the output keeps a `.js` extension despite being CommonJS. The manifest,
-   * Property Inspector pages and rendered icons are produced alongside it,
-   * which is why the whole `<UUID>.sdPlugin` folder is gitignored.
-   */
   pack: {
     clean: true,
     copy: [
@@ -54,22 +42,14 @@ export default defineConfig({
     entry: ["src/plugin.ts"],
     format: ["cjs"],
     hooks: {
-      // Render icons-src/*.svg into the plugin's imgs/ folder before bundling,
-      // so a single `vp pack` produces an installable plugin.
-      "build:prepare": async () => {
-        await import("./scripts/render-icons.mjs");
-      },
-      // This repo is `"type": "module"`, and Node resolves a file's module
-      // system by walking up to the nearest package.json — which, through the
-      // symlink Stream Deck follows, is this project's. Without this marker the
-      // CommonJS bundle is parsed as ESM and dies on `require`. A packaged
-      // plugin has no parent package.json at all, so it is needed there too.
       "build:done": () => {
         writeFileSync(
           `${sdPlugin}/bin/package.json`,
-          `${JSON.stringify({ type: "commonjs" }, null, 2)}
-`
+          `${JSON.stringify({ type: "commonjs" }, null, 2)}\n`
         );
+      },
+      "build:prepare": async () => {
+        await import("./scripts/render-icons.mjs");
       },
     },
     outDir: `${sdPlugin}/bin`,

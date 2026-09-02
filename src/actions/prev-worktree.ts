@@ -1,4 +1,3 @@
-
 import { context } from "../context.js";
 import { ACTION_UUID } from "../uuid.js";
 import { worktreeFace } from "./faces.js";

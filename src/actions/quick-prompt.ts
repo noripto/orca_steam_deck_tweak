@@ -1,12 +1,12 @@
 import type { KeyDownEvent, WillAppearEvent } from "@elgato/streamdeck";
 
 import { context } from "../context.js";
-import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import { resolveTerminalHandle, terminalSend } from "../orca/api.js";
 import type { OrcaSnapshot } from "../orca/types.js";
 import { fit, renderConnectionKey, renderKey } from "../render.js";
 import { cliOptions } from "../state/store.js";
+import { ACTION_UUID } from "../uuid.js";
 import { OrcaAction } from "./base.js";
 import {
   needsConfirmation,
@@ -16,7 +16,6 @@ import {
 } from "./quick-prompt-model.js";
 import type { QuickPromptSettings } from "./quick-prompt-model.js";
 
-/** Splits a button label onto two key lines at the first run of spaces. */
 const splitLabel = (label: string): string[] => {
   const [head, ...rest] = label.split(/\s+/u);
   if (head === undefined || rest.length === 0) {
@@ -97,7 +96,6 @@ export class QuickPromptAction extends OrcaAction<QuickPromptSettings> {
       }
       await ev.action.showAlert();
     } finally {
-      // Repaint normal face shortly after.
       setTimeout(() => this.renderAll(context.store.getSnapshot()), 1200);
       await context.poller.refreshNow();
     }

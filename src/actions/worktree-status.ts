@@ -7,7 +7,6 @@ import type {
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
-import { ACTION_UUID } from "../uuid.js";
 import { logger } from "../logger.js";
 import {
   openOrca,
@@ -17,13 +16,9 @@ import {
 import type { OrcaSnapshot } from "../orca/types.js";
 import { fit, renderConnectionKey, renderKey, stateVisual } from "../render.js";
 import { cliOptions } from "../state/store.js";
+import { ACTION_UUID } from "../uuid.js";
 import { OrcaAction } from "./base.js";
 
-/**
- * Brings Orca forward on the selected worktree. Failures are reported on the
- * key and logged rather than thrown: the caller is a Stream Deck event handler,
- * and the next poll re-reads the real state anyway.
- */
 const openSelectedWorktree = async (
   key: KeyDownEvent<JsonObject>["action"] | DialDownEvent<JsonObject>["action"]
 ): Promise<void> => {
