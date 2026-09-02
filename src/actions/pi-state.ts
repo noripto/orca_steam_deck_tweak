@@ -2,6 +2,7 @@ import { context } from "../context.js";
 
 export interface PiState {
   connection: string;
+  errorMessage?: string;
   hooksEnabled: boolean;
   settings: { cliPath: string; pollSeconds: number };
   agents: {
@@ -33,6 +34,7 @@ export const buildPiState = (): PiState => {
       worktreePath: a.worktreePath,
     })),
     connection: snapshot.connection,
+    errorMessage: snapshot.errorMessage,
     hooksEnabled: snapshot.hooksEnabled,
     settings: { cliPath: settings.cliPath, pollSeconds: settings.pollSeconds },
     worktrees: snapshot.worktrees.map((w) => ({

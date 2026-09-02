@@ -207,6 +207,8 @@ export interface NormalizedWorktree {
 /** Aggregate snapshot the poller publishes to actions. */
 export interface OrcaSnapshot {
   connection: OrcaConnection;
+  /** Why the connection is not `online`. Undefined while everything is fine. */
+  errorMessage?: string;
   agents: NormalizedAgent[];
   worktrees: NormalizedWorktree[];
   counts: Record<OrcaAgentState, number>;
