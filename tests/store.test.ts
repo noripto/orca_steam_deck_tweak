@@ -1,52 +1,54 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-vi.mock("../src/orca/api.js", () => ({
-  getStatus: vi.fn(),
-  worktreePs: vi.fn(),
-  agentHooksStatus: vi.fn(),
-}));
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { getStatus, worktreePs, agentHooksStatus } from "../src/orca/api.js";
-import { OrcaStore } from "../src/state/store.js";
 import type { OrcaWorktreeSummary } from "../src/orca/types.js";
+import { OrcaStore } from "../src/state/store.js";
+
+// vitest hoists vi.mock above the imports above, so this still mocks the API.
+vi.mock("../src/orca/api.js", () => ({
+  agentHooksStatus: vi.fn(),
+  getStatus: vi.fn(),
+  worktreePs: vi.fn(),
+}));
 
 const mockGetStatus = vi.mocked(getStatus);
 const mockWorktreePs = vi.mocked(worktreePs);
 const mockHooks = vi.mocked(agentHooksStatus);
 
-function wt(path: string, agents: OrcaWorktreeSummary["agents"]): OrcaWorktreeSummary {
-  return {
-    worktreeId: `repo::${path}`,
-    repoId: "repo",
-    repo: "myrepo",
-    path,
-    branch: path.replace("/", ""),
-    liveTerminalCount: agents.length,
-    hasAttachedPty: agents.length > 0,
-    status: "working",
-    agents,
-  };
-}
+const wt = (
+  path: string,
+  agents: OrcaWorktreeSummary["agents"]
+): OrcaWorktreeSummary => ({
+  agents,
+  branch: path.replace("/", ""),
+  hasAttachedPty: agents.length > 0,
+  liveTerminalCount: agents.length,
+  path,
+  repo: "myrepo",
+  repoId: "repo",
+  status: "working",
+  worktreeId: `repo::${path}`,
+});
 
-async function onlineStore(): Promise<OrcaStore> {
+const onlineStore = async (): Promise<OrcaStore> => {
   mockGetStatus.mockResolvedValue({ connection: "online", raw: undefined });
   mockHooks.mockResolvedValue({
+    appliedBy: "runtime",
     enabled: true,
     settingsPath: "",
-    appliedBy: "runtime",
     statuses: [],
   });
   mockWorktreePs.mockResolvedValue([
     wt("/a", [
-      { paneKey: "p1", state: "working", agentType: "claude" },
-      { paneKey: "p2", state: "waiting", agentType: "codex" },
+      { agentType: "claude", paneKey: "p1", state: "working" },
+      { agentType: "codex", paneKey: "p2", state: "waiting" },
     ]),
-    wt("/b", [{ paneKey: "p3", state: "idle", agentType: "claude" }]),
+    wt("/b", [{ agentType: "claude", paneKey: "p3", state: "idle" }]),
   ]);
   const store = new OrcaStore();
   await store.refresh();
   return store;
-}
+};
 
 describe("OrcaStore", () => {
   beforeEach(() => vi.clearAllMocks());
@@ -66,7 +68,7 @@ describe("OrcaStore", () => {
     expect(snap.connection).toBe("online");
     expect(snap.hooksEnabled).toBe(true);
     expect(snap.agents.map((a) => a.id)).toEqual(["p1", "p2", "p3"]);
-    expect(snap.counts).toMatchObject({ working: 1, waiting: 1, idle: 1 });
+    expect(snap.counts).toMatchObject({ idle: 1, waiting: 1, working: 1 });
   });
 
   it("selects the first agent by default and steps with wrap-around", async () => {
@@ -101,7 +103,7 @@ describe("OrcaStore", () => {
     const store = await onlineStore();
     store.selectAgentId("p3");
     mockWorktreePs.mockResolvedValue([
-      wt("/a", [{ paneKey: "p1", state: "working", agentType: "claude" }]),
+      wt("/a", [{ agentType: "claude", paneKey: "p1", state: "working" }]),
     ]);
     await store.refresh();
     expect(store.getSelectedAgent()?.id).toBe("p1");

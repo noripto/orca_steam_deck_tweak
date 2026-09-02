@@ -3,14 +3,29 @@ import type { OrcaStore } from "./store.js";
 
 export type SnapshotListener = (snapshot: OrcaSnapshot) => void;
 
+export const signatureOf = (snapshot: OrcaSnapshot): string => {
+  const agents = snapshot.agents
+    .map((a) => `${a.id}:${a.state}:${a.label}`)
+    .join("|");
+  const worktrees = snapshot.worktrees
+    .map((w) => `${w.worktreeId}:${w.state}:${w.unread}`)
+    .join("|");
+  return [snapshot.connection, snapshot.hooksEnabled, agents, worktrees].join(
+    "~"
+  );
+};
+
 export class OrcaPoller {
+  private readonly store: OrcaStore;
   private timer: NodeJS.Timeout | null = null;
   private running = false;
   private active = false;
   private listeners = new Set<SnapshotListener>();
   private lastSignature = "";
 
-  constructor(private readonly store: OrcaStore) {}
+  constructor(store: OrcaStore) {
+    this.store = store;
+  }
 
   subscribe(listener: SnapshotListener): () => void {
     this.listeners.add(listener);
@@ -19,9 +34,11 @@ export class OrcaPoller {
   }
 
   start(): void {
-    if (this.active) return;
+    if (this.active) {
+      return;
+    }
     this.active = true;
-    void this.tick();
+    this.runTick();
   }
 
   stop(): void {
@@ -33,13 +50,18 @@ export class OrcaPoller {
   }
 
   async refreshNow(): Promise<void> {
-    await this.pollOnce();
-    this.emit(this.store.getSnapshot());
-    this.scheduleNext();
+    try {
+      await this.pollOnce();
+    } finally {
+      this.emit(this.store.getSnapshot());
+      this.scheduleNext();
+    }
   }
 
   private async pollOnce(): Promise<void> {
-    if (this.running) return;
+    if (this.running) {
+      return;
+    }
     this.running = true;
     try {
       await this.store.refresh();
@@ -49,22 +71,55 @@ export class OrcaPoller {
     }
   }
 
+  /**
+   * A failed poll must not stop the loop, so the next run is scheduled in a
+   * `finally` block before the rejection propagates to {@link runTick}.
+   */
   private async tick(): Promise<void> {
-    await this.pollOnce();
-    this.scheduleNext();
+    try {
+      await this.pollOnce();
+    } finally {
+      this.scheduleNext();
+    }
+  }
+
+  /** Fire-and-forget entry point for `start()` and the timer callback. */
+  private runTick(): void {
+    // oxlint-disable-next-line eslint/no-void
+    void this.tickSafely();
+  }
+
+  /**
+   * `tick()` reschedules itself in a `finally`, so a rejection here is already
+   * handled; catching it stops it surfacing as an unhandled promise.
+   */
+  private async tickSafely(): Promise<void> {
+    try {
+      await this.tick();
+    } catch {
+      // Already rescheduled; the next poll reports the real state.
+    }
   }
 
   private scheduleNext(): void {
-    if (!this.active) return;
-    if (this.timer) clearTimeout(this.timer);
+    if (!this.active) {
+      return;
+    }
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
     const ms = this.store.getSettings().pollSeconds * 1000;
-    this.timer = setTimeout(() => void this.tick(), ms);
+    this.timer = setTimeout(() => {
+      this.runTick();
+    }, ms);
   }
 
   private notifyIfChanged(): void {
     const snapshot = this.store.getSnapshot();
     const signature = signatureOf(snapshot);
-    if (signature === this.lastSignature) return;
+    if (signature === this.lastSignature) {
+      return;
+    }
     this.lastSignature = signature;
     this.emit(snapshot);
   }
@@ -78,12 +133,4 @@ export class OrcaPoller {
       }
     }
   }
-}
-
-export function signatureOf(snapshot: OrcaSnapshot): string {
-  const agents = snapshot.agents.map((a) => `${a.id}:${a.state}:${a.label}`).join("|");
-  const worktrees = snapshot.worktrees
-    .map((w) => `${w.worktreeId}:${w.state}:${w.unread}`)
-    .join("|");
-  return [snapshot.connection, snapshot.hooksEnabled, agents, worktrees].join("~");
 }

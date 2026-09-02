@@ -1,31 +1,47 @@
-import { action, type KeyDownEvent } from "@elgato/streamdeck";
+import { action } from "@elgato/streamdeck";
+import type { KeyDownEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
-import { openOrca, resolveTerminalHandle, terminalSwitch } from "../orca/api.js";
-import { cliOptions } from "../state/store.js";
+import {
+  openOrca,
+  resolveTerminalHandle,
+  terminalSwitch,
+} from "../orca/api.js";
 import type { OrcaSnapshot } from "../orca/types.js";
 import { renderConnectionKey, renderKey } from "../render.js";
+import { cliOptions } from "../state/store.js";
 import { OrcaAction } from "./base.js";
 
 @action({ UUID: "dev.onorca.streamdeck.needs-input" })
 export class NeedsInputAction extends OrcaAction {
-  protected render(action: KeyDownEvent<JsonObject>["action"], snapshot: OrcaSnapshot): void {
-    void action.setTitle("");
+  // oxlint-disable-next-line eslint/class-methods-use-this
+  protected render(
+    key: KeyDownEvent<JsonObject>["action"],
+    snapshot: OrcaSnapshot
+  ): void {
+    void key.setTitle("");
     if (snapshot.connection !== "online") {
-      void action.setImage(renderConnectionKey(snapshot.connection, "NEEDS"));
+      void key.setImage(renderConnectionKey(snapshot.connection, "NEEDS"));
       return;
     }
-    const waiting = snapshot.counts.waiting;
+    const { waiting } = snapshot.counts;
     if (waiting === 0) {
-      void action.setImage(renderKey({ glyph: "✓", color: "#33c26a", lines: ["CLEAR"] }));
+      void key.setImage(
+        renderKey({ color: "#33c26a", glyph: "✓", lines: ["CLEAR"] })
+      );
       return;
     }
-    void action.setImage(
-      renderKey({ glyph: "!", color: "#f5a623", lines: ["NEEDS", String(waiting)] }),
+    void key.setImage(
+      renderKey({
+        color: "#f5a623",
+        glyph: "!",
+        lines: ["NEEDS", String(waiting)],
+      })
     );
   }
 
+  // oxlint-disable-next-line eslint/class-methods-use-this
   override async onKeyDown(ev: KeyDownEvent<JsonObject>): Promise<void> {
     const agent = context.store.getNeedsInputAgent();
     if (!agent) {
@@ -36,8 +52,14 @@ export class NeedsInputAction extends OrcaAction {
     const opts = cliOptions(context.store.getSettings());
     try {
       await openOrca(opts);
-      const handle = await resolveTerminalHandle(agent.worktreePath, agent.terminalTitleHint, opts);
-      if (handle) await terminalSwitch(handle, opts);
+      const handle = await resolveTerminalHandle(
+        agent.worktreePath,
+        agent.terminalTitleHint,
+        opts
+      );
+      if (handle) {
+        await terminalSwitch(handle, opts);
+      }
       await ev.action.showOk();
     } catch {
       await ev.action.showAlert();

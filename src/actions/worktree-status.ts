@@ -1,58 +1,105 @@
-import {
-  action,
-  type KeyDownEvent,
-  type WillAppearEvent,
-  type DialRotateEvent,
-  type DialDownEvent,
+import { action } from "@elgato/streamdeck";
+import type {
+  KeyDownEvent,
+  WillAppearEvent,
+  DialRotateEvent,
+  DialDownEvent,
 } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
-import { openOrca, resolveTerminalHandle, terminalSwitch } from "../orca/api.js";
-import { cliOptions } from "../state/store.js";
+import { logger } from "../logger.js";
+import {
+  openOrca,
+  resolveTerminalHandle,
+  terminalSwitch,
+} from "../orca/api.js";
 import type { OrcaSnapshot } from "../orca/types.js";
 import { fit, renderConnectionKey, renderKey, stateVisual } from "../render.js";
+import { cliOptions } from "../state/store.js";
 import { OrcaAction } from "./base.js";
+
+/**
+ * Brings Orca forward on the selected worktree. Failures are reported on the
+ * key and logged rather than thrown: the caller is a Stream Deck event handler,
+ * and the next poll re-reads the real state anyway.
+ */
+const openSelectedWorktree = async (
+  key: KeyDownEvent<JsonObject>["action"] | DialDownEvent<JsonObject>["action"]
+): Promise<void> => {
+  const wt = context.store.getSelectedWorktree();
+  if (!wt) {
+    return;
+  }
+  const opts = cliOptions(context.store.getSettings());
+  try {
+    await openOrca(opts);
+    const agent = context.store
+      .getSnapshot()
+      .agents.find((a) => a.worktreeId === wt.worktreeId);
+    const handle = await resolveTerminalHandle(
+      wt.path,
+      agent?.terminalTitleHint ?? null,
+      opts
+    );
+    if (handle) {
+      await terminalSwitch(handle, opts);
+    }
+  } catch (error) {
+    logger.error(`failed to open worktree ${wt.path}`, error);
+    await key.showAlert();
+  }
+  await context.poller.refreshNow();
+};
 
 @action({ UUID: "dev.onorca.streamdeck.worktree-status" })
 export class WorktreeStatusAction extends OrcaAction {
-  protected render(action: WillAppearEvent<JsonObject>["action"], snapshot: OrcaSnapshot): void {
+  // oxlint-disable-next-line eslint/class-methods-use-this
+  protected render(
+    key: WillAppearEvent<JsonObject>["action"],
+    snapshot: OrcaSnapshot
+  ): void {
     const wt = context.store.getSelectedWorktree();
 
-    if (action.isDial()) {
+    if (key.isDial()) {
       if (snapshot.connection !== "online") {
-        void action.setFeedback({ title: "ORCA", value: snapshot.connection.toUpperCase() });
+        void key.setFeedback({
+          title: "ORCA",
+          value: snapshot.connection.toUpperCase(),
+        });
         return;
       }
-      void action.setFeedback({
+      void key.setFeedback({
         title: wt ? `${fit(wt.repo, 12)}` : "WORKTREE",
-        value: wt ? `${fit(wt.branch, 14)} · ${stateVisual(wt.state).label}` : "none",
+        value: wt
+          ? `${fit(wt.branch, 14)} · ${stateVisual(wt.state).label}`
+          : "none",
       });
       return;
     }
 
-    void action.setTitle("");
+    void key.setTitle("");
     if (snapshot.connection !== "online") {
-      void action.setImage(renderConnectionKey(snapshot.connection, "WT"));
+      void key.setImage(renderConnectionKey(snapshot.connection, "WT"));
       return;
     }
     if (!wt) {
-      void action.setImage(
-        renderKey({ glyph: "❏", color: "#8a8f98", lines: ["WORKTREE", "NONE"] }),
+      void key.setImage(
+        renderKey({ color: "#8a8f98", glyph: "❏", lines: ["WORKTREE", "NONE"] })
       );
       return;
     }
     const visual = stateVisual(wt.state);
-    void action.setImage(
+    void key.setImage(
       renderKey({
-        glyph: "❏",
         color: visual.color,
+        glyph: "❏",
         lines: [
           fit(wt.repo),
           fit(wt.branch),
           `${wt.agentCount} agent${wt.agentCount === 1 ? "" : "s"}`,
         ],
-      }),
+      })
     );
   }
 
@@ -62,26 +109,12 @@ export class WorktreeStatusAction extends OrcaAction {
   }
 
   override async onDialDown(ev: DialDownEvent<JsonObject>): Promise<void> {
-    await this.openSelected();
+    await openSelectedWorktree(ev.action);
     this.renderAll(context.store.getSnapshot());
   }
 
-  override async onKeyDown(_ev: KeyDownEvent<JsonObject>): Promise<void> {
-    await this.openSelected();
-  }
-
-  private async openSelected(): Promise<void> {
-    const wt = context.store.getSelectedWorktree();
-    if (!wt) return;
-    const opts = cliOptions(context.store.getSettings());
-    try {
-      await openOrca(opts);
-      const agent = context.store.getSnapshot().agents.find((a) => a.worktreeId === wt.worktreeId);
-      const handle = await resolveTerminalHandle(wt.path, agent?.terminalTitleHint ?? null, opts);
-      if (handle) await terminalSwitch(handle, opts);
-    } catch {
-      throw new Error("next poll reflects reality");
-    }
-    await context.poller.refreshNow();
+  // oxlint-disable-next-line eslint/class-methods-use-this
+  override async onKeyDown(ev: KeyDownEvent<JsonObject>): Promise<void> {
+    await openSelectedWorktree(ev.action);
   }
 }

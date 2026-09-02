@@ -1,5 +1,6 @@
-import { OrcaStore, type OrcaSettings } from "./state/store.js";
 import { OrcaPoller } from "./state/poller.js";
+import { OrcaStore } from "./state/store.js";
+import type { OrcaSettings } from "./state/store.js";
 
 export class PluginContext {
   readonly store = new OrcaStore();
