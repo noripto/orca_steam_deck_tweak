@@ -53,6 +53,27 @@ const onlineStore = async (): Promise<OrcaStore> => {
 describe("OrcaStore", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("keeps the reason a connection is not online", async () => {
+    mockGetStatus.mockResolvedValue({
+      connection: "cli-missing",
+      errorMessage: 'Orca CLI executable not found: "orca".',
+    });
+    const store = new OrcaStore();
+    const snap = await store.refresh();
+    expect(snap.connection).toBe("cli-missing");
+    expect(snap.errorMessage).toBe('Orca CLI executable not found: "orca".');
+  });
+
+  it("keeps the reason when listing worktrees throws", async () => {
+    mockGetStatus.mockResolvedValue({ connection: "online", raw: undefined });
+    mockHooks.mockResolvedValue(null);
+    mockWorktreePs.mockRejectedValue(new Error("terminal_handle_stale"));
+    const store = new OrcaStore();
+    const snap = await store.refresh();
+    expect(snap.connection).toBe("error");
+    expect(snap.errorMessage).toBe("terminal_handle_stale");
+  });
+
   it("reports offline without querying worktrees", async () => {
     mockGetStatus.mockResolvedValue({ connection: "offline" });
     const store = new OrcaStore();

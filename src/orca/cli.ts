@@ -131,6 +131,9 @@ export const tryParseEnvelope = <T>(stdout: string): OrcaEnvelope<T> | null => {
     try {
       return JSON.parse(text.slice(start, end + 1)) as OrcaEnvelope<T>;
     } catch {
+      // Not JSON after all. Returning null rather than logging is deliberate:
+      // runOrcaJson turns this into an `invalid_response` OrcaCliError that
+      // carries the actual output, so nothing is lost here.
       return null;
     }
   }

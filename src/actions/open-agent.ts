@@ -3,6 +3,7 @@ import type { KeyDownEvent, WillAppearEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 
 import { context } from "../context.js";
+import { logger } from "../logger.js";
 import {
   openOrca,
   resolveTerminalHandle,
@@ -61,7 +62,8 @@ export class OpenAgentAction extends OrcaAction {
         await terminalSwitch(handle, opts);
       }
       await ev.action.showOk();
-    } catch {
+    } catch (error) {
+      logger.error("failed to open the selected agent", error);
       await ev.action.showAlert();
     }
     await context.poller.refreshNow();

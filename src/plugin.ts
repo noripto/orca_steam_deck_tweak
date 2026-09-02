@@ -11,6 +11,7 @@ import { PrevWorktreeAction } from "./actions/prev-worktree.js";
 import { QuickPromptAction } from "./actions/quick-prompt.js";
 import { WorktreeStatusAction } from "./actions/worktree-status.js";
 import { context } from "./context.js";
+import { logger } from "./logger.js";
 import { DEFAULT_SETTINGS } from "./state/store.js";
 import type { OrcaSettings } from "./state/store.js";
 
@@ -63,7 +64,8 @@ streamDeck.actions.registerAction(new WorktreeStatusAction());
     >;
     const patch = coerceSettings(global);
     context.applyGlobalSettings({ ...DEFAULT_SETTINGS, ...patch });
-  } catch {
+  } catch (error) {
+    logger.warn("could not read global settings; using defaults", error);
     context.applyGlobalSettings(DEFAULT_SETTINGS);
   }
 

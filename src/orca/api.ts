@@ -1,3 +1,4 @@
+import { logger } from "../logger.js";
 import { OrcaCliError } from "./cli-error.js";
 import { OrcaCliMissingError } from "./cli-missing-error.js";
 import { runOrcaJson } from "./cli.js";
@@ -136,7 +137,10 @@ export const agentHooksStatus = async (
       ["agent", "hooks", "status"],
       options
     );
-  } catch {
+  } catch (error) {
+    // Hooks being unavailable is a normal configuration, not a failure, so
+    // this stays at debug level rather than surfacing as an error.
+    logger.debug("agent hooks status unavailable", error);
     return null;
   }
 };

@@ -85,6 +85,7 @@ export class OrcaStore {
       this.snapshot = {
         ...emptySnapshot(),
         connection: status.connection,
+        errorMessage: status.errorMessage,
         updatedAt: Date.now(),
       };
       this.reconcileSelection();
@@ -101,10 +102,14 @@ export class OrcaStore {
       ]);
       ({ agents, worktrees } = normalizeWorktrees(summaries));
       hooksEnabled = hooks?.enabled ?? false;
-    } catch {
+    } catch (error) {
+      // Listing worktrees failed even though `orca status` reported online.
+      // Keep the reason: the keys only have room for "ERROR", and without it
+      // the cause is gone for good.
       this.snapshot = {
         ...emptySnapshot(),
         connection: "error",
+        errorMessage: error instanceof Error ? error.message : String(error),
         updatedAt: Date.now(),
       };
       this.reconcileSelection();

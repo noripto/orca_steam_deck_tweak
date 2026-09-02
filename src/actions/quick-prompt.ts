@@ -2,6 +2,7 @@ import { action } from "@elgato/streamdeck";
 import type { KeyDownEvent, WillAppearEvent } from "@elgato/streamdeck";
 
 import { context } from "../context.js";
+import { logger } from "../logger.js";
 import { resolveTerminalHandle, terminalSend } from "../orca/api.js";
 import type { OrcaSnapshot } from "../orca/types.js";
 import { fit, renderConnectionKey, renderKey } from "../render.js";
@@ -83,6 +84,7 @@ export class QuickPromptAction extends OrcaAction<QuickPromptSettings> {
       const accepted = await terminalSend({ enter, handle, text }, opts);
       await (accepted ? ev.action.showOk() : ev.action.showAlert());
     } catch (error) {
+      logger.error("quick prompt failed", error);
       if (error instanceof QuickPromptError) {
         void ev.action.setImage(
           renderKey({

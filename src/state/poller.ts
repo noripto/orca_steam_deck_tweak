@@ -1,3 +1,4 @@
+import { logger } from "../logger.js";
 import type { OrcaSnapshot } from "../orca/types.js";
 import type { OrcaStore } from "./store.js";
 
@@ -10,9 +11,13 @@ export const signatureOf = (snapshot: OrcaSnapshot): string => {
   const worktrees = snapshot.worktrees
     .map((w) => `${w.worktreeId}:${w.state}:${w.unread}`)
     .join("|");
-  return [snapshot.connection, snapshot.hooksEnabled, agents, worktrees].join(
-    "~"
-  );
+  return [
+    snapshot.connection,
+    snapshot.errorMessage ?? "",
+    snapshot.hooksEnabled,
+    agents,
+    worktrees,
+  ].join("~");
 };
 
 export class OrcaPoller {
@@ -96,8 +101,10 @@ export class OrcaPoller {
   private async tickSafely(): Promise<void> {
     try {
       await this.tick();
-    } catch {
-      // Already rescheduled; the next poll reports the real state.
+    } catch (error) {
+      // Already rescheduled by tick()'s finally, so the loop keeps running;
+      // logging is all that is left to do with this.
+      logger.error("poll failed", error);
     }
   }
 
@@ -121,15 +128,32 @@ export class OrcaPoller {
       return;
     }
     this.lastSignature = signature;
+    this.reportConnection(snapshot);
     this.emit(snapshot);
+  }
+
+  /**
+   * Logs why Orca is unreachable. Called only when the snapshot signature
+   * changed, so a persistent outage produces one entry rather than one every
+   * poll interval.
+   */
+  // oxlint-disable-next-line eslint/class-methods-use-this
+  private reportConnection(snapshot: OrcaSnapshot): void {
+    if (snapshot.connection === "online") {
+      return;
+    }
+    const reason = snapshot.errorMessage ?? "no further detail";
+    logger.warn(`Orca is ${snapshot.connection}: ${reason}`);
   }
 
   private emit(snapshot: OrcaSnapshot): void {
     for (const listener of this.listeners) {
       try {
         listener(snapshot);
-      } catch {
-        // A misbehaving key must not stop others from updating.
+      } catch (error) {
+        // A misbehaving key must not stop others from updating, but it should
+        // not vanish either.
+        logger.error("snapshot listener failed", error);
       }
     }
   }
