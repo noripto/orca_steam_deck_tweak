@@ -1,6 +1,6 @@
 {
   "name": "orca-streamdeck",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Control and monitor Orca AI coding agents from an Elgato Stream Deck.",
   "type": "module",
@@ -13,7 +13,7 @@
     "test": "vp test run",
     "test:watch": "vp test",
     "typecheck": "tsc --noEmit",
-    "validate": "streamdeck validate dev.orca-ade.streamdeck.sdPlugin"
+    "validate": "streamdeck validate norigram.orca-ade.streamdeck.sdPlugin"
   },
   "dependencies": {
     "@elgato/streamdeck": "^2.1.2",

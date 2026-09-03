@@ -8,7 +8,7 @@ const root = path.join(import.meta.dirname, "..");
 // The plugin folder name is `<manifest UUID>.sdPlugin`, so read it rather than
 // repeating the UUID here.
 const manifest = JSON.parse(
-  readFileSync(path.join(root, "src", "manifest.json"), "utf-8")
+  readFileSync(path.join(root, "src", "assets", "manifest.json"), "utf-8")
 );
 const outRoot = path.join(root, `${manifest.UUID}.sdPlugin`, "imgs");
 
@@ -36,7 +36,10 @@ const render = (svg, width) => {
 };
 
 for (const [src, base, width] of jobs) {
-  const svg = readFileSync(path.join(root, "icons-src", src), "utf-8");
+  const svg = readFileSync(
+    path.join(root, "src", "assets", "icons", src),
+    "utf-8"
+  );
   for (const [suffix, scale] of [
     ["", 1],
     ["@2x", 2],
