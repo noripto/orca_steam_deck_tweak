@@ -4,7 +4,9 @@ import ultraciteFmt from "ultracite/oxfmt";
 import ultraciteLint from "ultracite/oxlint/core";
 import { defineConfig } from "vite-plus";
 
-const manifest = JSON.parse(readFileSync("src/manifest.json", "utf-8")) as {
+const manifest = JSON.parse(
+  readFileSync("src/assets/manifest.json", "utf-8")
+) as {
   UUID: string;
 };
 const sdPlugin = `${manifest.UUID}.sdPlugin`;
@@ -26,7 +28,7 @@ export default defineConfig({
     overrides: [
       {
         env: { browser: true, node: false },
-        files: ["src/ui/**"],
+        files: ["src/assets/ui/**"],
       },
     ],
   },
@@ -34,8 +36,8 @@ export default defineConfig({
   pack: {
     clean: true,
     copy: [
-      { from: "src/manifest.json", to: sdPlugin },
-      { from: "src/ui/*", to: `${sdPlugin}/ui` },
+      { from: "src/assets/manifest.json", to: sdPlugin },
+      { from: "src/assets/ui/*", to: `${sdPlugin}/ui` },
     ],
     deps: { alwaysBundle: [/^@elgato\//u] },
     dts: false,

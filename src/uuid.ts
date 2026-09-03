@@ -1,5 +1,5 @@
 /**
- * Action identifiers, kept in sync with `src/manifest.json` by
+ * Action identifiers, kept in sync with `src/assets/manifest.json` by
  * `tests/manifest.test.ts`.
  *
  * These are assigned to `SingletonAction.manifestId` rather than applied with
@@ -7,7 +7,7 @@
  * decorator, and oxc — which Rolldown/tsdown use to transform — cannot lower
  * those yet, so they would reach Node verbatim and fail to parse.
  */
-export const PLUGIN_UUID = "dev.orca-ade.streamdeck";
+export const PLUGIN_UUID = "norigram.orca-ade.streamdeck";
 
 export const ACTION_UUID = {
   agentStatus: `${PLUGIN_UUID}.agent-status`,
