@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "icons": "node scripts/render-icons.mjs",
+    "marketplace": "node scripts/render-marketplace.mjs",
     "build": "vp pack",
     "watch": "vp pack --watch",
     "check": "vp check",
