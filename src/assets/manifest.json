@@ -2,7 +2,7 @@
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "Name": "Orca Agent Control",
   "Version": "1.0.0.0",
-  "Author": "Orca Stream Deck",
+  "Author": "noripto",
   "Description": "Monitor and control Orca AI coding agents (Claude, Codex, …) from your Stream Deck.",
   "Category": "Orca Agent Control",
   "Icon": "imgs/plugin/marketplace",
@@ -14,7 +14,7 @@
     "Version": "20"
   },
   "Software": {
-    "MinimumVersion": "6.5"
+    "MinimumVersion": "7.0"
   },
   "OS": [
     { "Platform": "windows", "MinimumVersion": "10" },
